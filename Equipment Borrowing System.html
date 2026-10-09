@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Borrowing System</title>
+    <link rel="stylesheet" href="Management.css">
+</head>
+
+<body>
+    <header>
+        <div class="brand">
+            <div class="brand-icon"><img id="logo" src="images/Logo Spoild (2).png" alt="Logo"></div>
+            <div class="brand-title">
+                <h1>Fetch!</h1>
+                <h5>ICTC Equipment Borrowing System</h5>
+            </div>
+        </div>
+        <div>
+            <button onclick="openModal('add-modal')" class="btn">
+                <span id = "add-equipment-btn">＋ Add Equipment</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main>
+        <!-- Tabs Navigation -->
+        <div class="nav-tabs">
+            <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn active">📊 Dashboard</button>
+            <button onclick="switchTab('catalog')" id="tab-btn-catalog" class="tab-btn">🛠️ Equipment Catalog</button>
+            <button onclick="switchTab('active')" id="tab-btn-active" class="tab-btn">📋 Active Lendings</button>
+            <button onclick="switchTab('history')" id="tab-btn-history" class="tab-btn">📜 History Log</button>
+        </div>
+
+        <!-- 1. DASHBOARD TAB -->
+        <div id="tab-dashboard" class="tab-pane active">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div>
+                        <p>Total Items In Stock</p>
+                        <h3 id="stat-total">0</h3>
+                    </div>
+                    <div class="stat-icon" style="background: #eff6ff; color: #2563eb;">📚</div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p>Currently Borrowed</p>
+                        <h3 id="stat-borrowed" style="color: #d97706;">0</h3>
+                    </div>
+                    <div class="stat-icon" style="background: #fef3c7; color: #d97706;">⏳</div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p>Overdue Lendings</p>
+                        <h3 id="stat-overdue" style="color: #dc2626;">0</h3>
+                    </div>
+                    <div class="stat-icon" style="background: #fee2e2; color: #dc2626;">⚠️</div>
+                </div>
+            </div>
+
+            <!-- Recent Active Loans Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Current Active Loans</h2>
+                    <button onclick="switchTab('active')" class="btn btn-secondary" style="font-size: 0.75rem; padding: 4px 8px;">View All</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Equipment</th>
+                            <th>Borrower</th>
+                            <th>Department / Room</th>
+                            <th>Qty</th>
+                            <th>Due Date</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboard-active-tbody">
+                        <!-- Dynamic -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 2. CATALOG TAB -->
+        <div id="tab-catalog" class="tab-pane">
+            <div class="header-top">
+                <div>
+                    <h2 style="font-size: 1.25rem; font-weight: 700;">Equipment Catalog</h2>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">Manage multi-quantity inventory assets</p>
+                </div>
+                <div class="search-box">
+                    <i>🔍</i>
+                    <input type="text" id="search-catalog" oninput="renderAll()" placeholder="Search equipment...">
+                </div>
+            </div>
+
+            <div id="catalog-grid" class="catalog-grid">
+                <!-- Dynamic -->
+            </div>
+        </div>
+
+        <!-- 3. ACTIVE LOANS TAB -->
+        <div id="tab-active" class="tab-pane">
+            <div class="header-top">
+                <div>
+                    <h2 style="font-size: 1.25rem; font-weight: 700;">Active Lendings Tracker</h2>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">All currently checked out equipment units</p>
+                </div>
+                <div class="search-box">
+                    <i>🔍</i>
+                    <input type="text" id="search-active" oninput="renderAll()" placeholder="Search borrower, item, or room...">
+                </div>
+            </div>
+
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Equipment</th>
+                            <th>Borrower Name</th>
+                            <th>Department / Room</th>
+                            <th>Quantity</th>
+                            <th>Due Date / Status</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="active-loans-tbody">
+                        <!-- Dynamic -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 4. HISTORY TAB -->
+        <div id="tab-history" class="tab-pane">
+            <div class="header-top">
+                <div>
+                    <h2 style="font-size: 1.25rem; font-weight: 700;">Transaction History Log</h2>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">Past borrowings and returns records</p>
+                </div>
+                <div class="search-box">
+                    <i>🔍</i>
+                    <input type="text" id="search-history" oninput="renderAll()" placeholder="Search history logs...">
+                </div>
+            </div>
+
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Equipment</th>
+                            <th>Borrower</th>
+                            <th>Qty</th>
+                            <th>Borrowed Date</th>
+                            <th>Returned Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody">
+                        <!-- Dynamic -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL: ADD EQUIPMENT -->
+    <div id="add-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add New Equipment</h3>
+                <button class="close-btn" onclick="closeModal('add-modal')">&times;</button>
+            </div>
+            <form id="add-form" onsubmit="handleAddEquipment(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="form-group">
+                    <label>Equipment Name</label>
+                    <input type="text" id="add-name" required placeholder="e.g. Speakers">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" id="add-category" required placeholder="e.g. Audio">
+                </div>
+                <div class="form-group">
+                    <label>Total Quantity Available</label>
+                    <input type="number" id="add-qty" min="1" value="5" required>
+                </div>
+                <div class="form-group">
+                    <label>Image URL / Local Path (Optional)</label>
+                    <input type="text" id="add-image" placeholder="images/Speaker.jpg">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('add-modal')">Cancel</button>
+                    <button type="submit" class="btn">Save Equipment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: CHECKOUT / BORROW -->
+    <div id="borrow-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Checkout Equipment</h3>
+                <button class="close-btn" onclick="closeModal('borrow-modal')">&times;</button>
+            </div>
+            <form id="borrow-form" onsubmit="handleBorrowEquipment(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                <input type="hidden" id="borrow-item-id">
+                <div class="form-group">
+                    <label>Selected Item</label>
+                    <input type="text" id="borrow-item-name" readonly style="background: #f8fafc; color: var(--text-muted);">
+                </div>
+                <div class="form-group">
+                    <label>Borrower Full Name</label>
+                    <input type="text" id="borrower-name" required placeholder="e.g. Juan Dela Cruz">
+                </div>
+                <div class="form-group">
+                    <label>Department / Course</label>
+                    <input type="text" id="borrower-dept" required placeholder="e.g. BS Information Technology">
+                </div>
+
+                <div class="form-group">
+                    <label>Designated Room <span id="room-req-star" style="color: #dc2626; display: none;">*</span></label>
+                    <input type="text" id="borrower-room" placeholder="e.g. Room 301">
+                    <small id="room-hint" style="color: #d97706; font-size: 0.75rem; display: none; margin-top: 4px;"></small>
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity to Borrow (Max: <span id="borrow-max-qty">1</span>)</label>
+                    <input type="number" id="borrow-qty" min="1" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Expected Return Date</label>
+                    <input type="date" id="borrow-due-date" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('borrow-modal')">Cancel</button>
+                    <button type="submit" class="btn">Confirm Checkout</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Offline Logic & JSON Database -->
+    <script>
+        const STORAGE_KEY_INVENTORY = 'equipborrow_db_inventory';
+        const STORAGE_KEY_BORROWED = 'equipborrow_db_borrowed';
+        const STORAGE_KEY_HISTORY = 'equipborrow_db_history';
+
+        const defaultInventory = [
+            { id: 'EQ-101', name: 'Speakers', category: 'Audio', totalQty: 5, availableQty: 5, image: 'images/Speaker.jpg' },
+            { id: 'EQ-102', name: 'Webcam', category: 'Photography', totalQty: 3, availableQty: 3, image: 'images/webcam.jpg' },
+            { id: 'EQ-103', name: 'Computer Mouse', category: 'Input Devices', totalQty: 2, availableQty: 2, image: 'images/mouse.jpg' },
+            { id: 'EQ-104', name: 'Computer Keyboard', category: 'Input Devices', totalQty: 6, availableQty: 6, image: 'images/keyboard.jpg' },
+            { id: 'EQ-105', name: 'Headset', category: 'Audio Devices', totalQty: 4, availableQty: 4, image: 'images/headset.jpg' },
+            { id: 'EQ-106', name: 'VGA Cable', category: 'Video Cable', totalQty: 5, availableQty: 5, image: 'images/VGA.jpg' },
+            { id: 'EQ-107', name: 'HDMI Cable', category: 'Video Cable', totalQty: 5, availableQty: 5, image: 'images/HDMI.jpg', restrictedRooms: ['Room 301', 'Room 302', 'Auditorium'] }
+        ];
+
+        const defaultBorrowed = [
+            { loanId: 'LOAN-1', itemId: 'EQ-101', itemName: 'Speakers', borrower: 'Alex Turner', Department: 'BS Information Technology', room: 'Room 101', qty: 1, borrowedDate: '2026-05-01', dueDate: '2026-05-15' },
+            { loanId: 'LOAN-2', itemId: 'EQ-103', itemName: 'Computer Mouse', Department: 'BS Psychology', borrower: 'Juan Dela Cruz', room: 'Auditorium', qty: 1, borrowedDate: '2026-04-10', dueDate: '2026-04-18' }
+        ];
+
+        const defaultHistory = [
+            { id: 'HIST-1', itemName: 'HDMI / USB-C Hub', borrower: 'David Miller', qty: 1, borrowedDate: '2026-04-01', returnedDate: '2026-04-05', status: 'Returned' }
+        ];
+
+        // Database getters & setters
+        function getDB(key, defaultVal) {
+            const data = localStorage.getItem(key);
+            if (!data) {
+                localStorage.setItem(key, JSON.stringify(defaultVal));
+                return JSON.parse(JSON.stringify(defaultVal));
+            }
+            try { return JSON.parse(data); } catch(e) { return defaultVal; }
+        }
+
+        function saveDB(key, val) {
+            localStorage.setItem(key, JSON.stringify(val));
+        }
+
+        // Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            document.getElementById(`tab-btn-${tabId}`).classList.add('active');
+            renderAll();
+        }
+
+        // Modal Controls
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            if (id === 'borrow-modal') {
+                const today = new Date().toISOString().split('T')[0];
+                const dueInput = document.getElementById('borrow-due-date');
+                dueInput.min = today;
+                dueInput.value = today;
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Add New Equipment
+        function handleAddEquipment(e) {
+            e.preventDefault();
+            const name = document.getElementById('add-name').value.trim();
+            const category = document.getElementById('add-category').value.trim();
+            const totalQty = parseInt(document.getElementById('add-qty').value);
+            const image = document.getElementById('add-image').value.trim();
+
+            let inventory = getDB(STORAGE_KEY_INVENTORY, defaultInventory);
+            const newId = 'EQ-' + Math.floor(100 + Math.random() * 900);
+
+            inventory.push({
+                id: newId,
+                name: name,
+                category: category,
+                totalQty: totalQty,
+                availableQty: totalQty,
+                image: image || 'images/Speaker.jpg'
+            });
+
+            saveDB(STORAGE_KEY_INVENTORY, inventory);
+            closeModal('add-modal');
+            document.getElementById('add-form').reset();
+            renderAll();
+        }
+
+        // Open Checkout Modal
+        function openBorrowModal(itemId) {
+            const inventory = getDB(STORAGE_KEY_INVENTORY, defaultInventory);
+            const item = inventory.find(i => i.id === itemId);
+            if (!item || item.availableQty <= 0) {
+                alert('No units available to borrow for this item.');
+                return;
+            }
+
+            document.getElementById('borrow-item-id').value = item.id;
+            document.getElementById('borrow-item-name').value = `${item.name} (Available: ${item.availableQty})`;
+            
+            const qtyInput = document.getElementById('borrow-qty');
+            qtyInput.max = item.availableQty;
+            qtyInput.value = 1;
+            document.getElementById('borrow-max-qty').textContent = item.availableQty;
+
+            // Room Restriction Check Logic & Input Reset
+            const roomInput = document.getElementById('borrower-room');
+            const roomHint = document.getElementById('room-hint');
+            const roomReqStar = document.getElementById('room-req-star');
+
+            roomInput.value = ''; // Reset room input field
+
+            if (item.restrictedRooms && item.restrictedRooms.length > 0) {
+                roomInput.required = true;
+                roomReqStar.style.display = 'inline';
+                roomHint.style.display = 'block';
+                roomHint.textContent = `⚠️ Restricted item. Allowed rooms: ${item.restrictedRooms.join(', ')}`;
+            } else {
+                roomInput.required = false;
+                roomReqStar.style.display = 'none';
+                roomHint.style.display = 'none';
+            }
+
+            openModal('borrow-modal');
+        }
+
+        // Handle Borrow / Checkout
+        function handleBorrowEquipment(e) {
+            e.preventDefault();
+            const itemId = document.getElementById('borrow-item-id').value;
+            const borrower = document.getElementById('borrower-name').value.trim();
+            const dept = document.getElementById('borrower-dept').value.trim();
+            const room = document.getElementById('borrower-room').value.trim();
+            const qty = parseInt(document.getElementById('borrow-qty').value);
+            const dueDate = document.getElementById('borrow-due-date').value;
+            const borrowedDate = new Date().toISOString().split('T')[0];
+
+            let inventory = getDB(STORAGE_KEY_INVENTORY, defaultInventory);
+            let borrowedList = getDB(STORAGE_KEY_BORROWED, defaultBorrowed);
+
+            const itemIndex = inventory.findIndex(i => i.id === itemId);
+            if (itemIndex === -1 || inventory[itemIndex].availableQty < qty) {
+                alert('Invalid quantity or item not found.');
+                return;
+            }
+
+            const item = inventory[itemIndex];
+
+            // Validate room against allowed rooms
+            if (item.restrictedRooms && item.restrictedRooms.length > 0) {
+                const isValidRoom = item.restrictedRooms.some(r => r.toLowerCase() === room.toLowerCase());
+                if (!isValidRoom) {
+                    alert(`Checkout Failed!\n${item.name} can only be borrowed for use in: ${item.restrictedRooms.join(', ')}`);
+                    return;
+                }
+            }
+
+            // Deduct available quantity
+            inventory[itemIndex].availableQty -= qty;
+
+            // Add to active loans
+            const newLoan = {
+                loanId: 'LOAN-' + Date.now(),
+                itemId: itemId,
+                itemName: inventory[itemIndex].name,
+                borrower: borrower,
+                department: dept,
+                room: room || 'N/A',
+                qty: qty,
+                borrowedDate: borrowedDate,
+                dueDate: dueDate
+            };
+            borrowedList.push(newLoan);
+
+            saveDB(STORAGE_KEY_INVENTORY, inventory);
+            saveDB(STORAGE_KEY_BORROWED, borrowedList);
+
+            closeModal('borrow-modal');
+            document.getElementById('borrow-form').reset();
+            renderAll();
+        }
+
+        // Return Equipment
+        function returnLoan(loanId) {
+            let inventory = getDB(STORAGE_KEY_INVENTORY, defaultInventory);
+            let borrowedList = getDB(STORAGE_KEY_BORROWED, defaultBorrowed);
+            let historyList = getDB(STORAGE_KEY_HISTORY, defaultHistory);
+
+            const loanIndex = borrowedList.findIndex(l => l.loanId === loanId);
+            if (loanIndex === -1) return;
+
+            const loan = borrowedList[loanIndex];
+            const today = new Date().toISOString().split('T')[0];
+
+            // Restore available quantity in inventory
+            const itemIndex = inventory.findIndex(i => i.id === loan.itemId);
+            if (itemIndex !== -1) {
+                inventory[itemIndex].availableQty = Math.min(
+                    inventory[itemIndex].totalQty,
+                    inventory[itemIndex].availableQty + loan.qty
+                );
+            }
+
+            // Add to history log
+            historyList.unshift({
+                id: 'HIST-' + Date.now(),
+                itemName: loan.itemName,
+                borrower: loan.borrower,
+                qty: loan.qty,
+                borrowedDate: loan.borrowedDate,
+                returnedDate: today,
+                status: 'Returned'
+            });
+
+            // Remove from active loans
+            borrowedList.splice(loanIndex, 1);
+
+            saveDB(STORAGE_KEY_INVENTORY, inventory);
+            saveDB(STORAGE_KEY_BORROWED, borrowedList);
+            saveDB(STORAGE_KEY_HISTORY, historyList);
+
+            renderAll();
+        }
+
+        // Delete Equipment from Catalog
+        function deleteEquipment(itemId) {
+            let inventory = getDB(STORAGE_KEY_INVENTORY, defaultInventory);
+            let borrowedList = getDB(STORAGE_KEY_BORROWED, defaultBorrowed);
+
+            const activeCheck = borrowedList.some(l => l.itemId === itemId);
+            if (activeCheck) {
+                alert('Cannot delete this equipment while active loans are checked out against it.');
+                return;
+            }
+
+            inventory = inventory.filter(i => i.id !== itemId);
+            saveDB(STORAGE_KEY_INVENTORY, inventory);
+            renderAll();
+        }
+
+        // Render Dashboard, Catalog, Active Loans, and History
+        function renderAll() {
+            const inventory = getDB(STORAGE_KEY_INVENTORY, defaultInventory);
+            const borrowedList = getDB(STORAGE_KEY_BORROWED, defaultBorrowed);
+            const historyList = getDB(STORAGE_KEY_HISTORY, defaultHistory);
+
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            // --- Stats Calculation ---
+            let totalUnits = 0;
+            let currentlyBorrowedUnits = 0;
+            let overdueCount = 0;
+
+            inventory.forEach(i => totalUnits += i.totalQty);
+            borrowedList.forEach(l => {
+                currentlyBorrowedUnits += l.qty;
+                if (l.dueDate < todayStr) {
+                    overdueCount++;
+                }
+            });
+
+            document.getElementById('stat-total').textContent = totalUnits;
+            document.getElementById('stat-borrowed').textContent = currentlyBorrowedUnits;
+            document.getElementById('stat-overdue').textContent = overdueCount;
+
+            // --- 1. Catalog Grid ---
+            const catalogSearch = document.getElementById('search-catalog').value.toLowerCase();
+            const catalogGrid = document.getElementById('catalog-grid');
+            const filteredCatalog = inventory.filter(i => i.name.toLowerCase().includes(catalogSearch) || i.category.toLowerCase().includes(catalogSearch));
+
+            if (filteredCatalog.length === 0) {
+                catalogGrid.innerHTML = `<div class="empty-state">No equipment found matching your search.</div>`;
+            } else {
+                catalogGrid.innerHTML = filteredCatalog.map(item => {
+                    let badgeClass = 'badge-available';
+                    let badgeText = 'Available';
+                    if (item.availableQty === 0) {
+                        badgeClass = 'badge-depleted';
+                        badgeText = 'Out of Stock';
+                    } else if (item.availableQty < item.totalQty) {
+                        badgeClass = 'badge-partial';
+                        badgeText = 'Partial Stock';
+                    }
+
+                    return `
+                        <div class="equipment-card">
+                            <div class="equipment-img-container">
+                                <img src="${item.image}" alt="${item.name}" onerror="this.src='https://placehold.co/600x400/e2e8f0/64748b?text=Item'">
+                                <span class="badge ${badgeClass}">${badgeText}</span>
+                            </div>
+                            <div class="equipment-body">
+                                <span class="equipment-category">${item.category}</span>
+                                <h4 class="equipment-name">${item.name}</h4>
+                                <p class="equipment-meta">Stock: <strong>${item.availableQty}</strong> / ${item.totalQty} available</p>
+                            </div>
+                            <div class="equipment-footer">
+                                <button onclick="openBorrowModal('${item.id}')" class="btn" style="flex: 1; justify-content: center; font-size: 0.75rem;" ${item.availableQty === 0 ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>Borrow</button>
+                                <button onclick="deleteEquipment('${item.id}')" class="btn btn-secondary" style="font-size: 0.75rem;" title="Delete item">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // --- 2. Active Loans Tables (Dashboard & Active Tab) ---
+            const activeSearch = document.getElementById('search-active').value.toLowerCase();
+            const filteredBorrowed = borrowedList.filter(l => 
+                l.itemName.toLowerCase().includes(activeSearch) || 
+                l.borrower.toLowerCase().includes(activeSearch) || 
+                l.department.toLowerCase().includes(activeSearch) ||
+                (l.room && l.room.toLowerCase().includes(activeSearch))
+            );
+
+            const activeRowsHtml = filteredBorrowed.length === 0 
+                ? `<tr><td colspan="6" class="empty-state" style="padding: 1.5rem;">No active equipment loans at this time.</td></tr>`
+                : filteredBorrowed.map(loan => {
+                    const isOverdue = loan.dueDate < todayStr;
+                    return `
+                        <tr>
+                            <td><strong>${loan.itemName}</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);">${loan.itemId}</span></td>
+                            <td>${loan.borrower}</td>
+                            <td>${loan.department}<br><span style="font-size: 0.75rem; color: var(--text-muted);">Room: ${loan.room || 'N/A'}</span></td>
+                            <td><strong>${loan.qty}</strong></td>
+                            <td>
+                                <span style="color: ${isOverdue ? '#dc2626' : 'var(--text-main)'}; font-weight: ${isOverdue ? '700' : '400'};">
+                                    ${isOverdue ? '⚠️ Overdue: ' : 'Due: '}${loan.dueDate}
+                                </span>
+                            </td>
+                            <td style="text-align: right;">
+                                <button onclick="returnLoan('${loan.loanId}')" class="btn btn-success" style="font-size: 0.75rem; padding: 4px 10px;">Return</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            document.getElementById('active-loans-tbody').innerHTML = activeRowsHtml;
+            document.getElementById('dashboard-active-tbody').innerHTML = activeRowsHtml;
+
+            // --- 3. History Log Table ---
+            const historySearch = document.getElementById('search-history').value.toLowerCase();
+            const filteredHistory = historyList.filter(h => 
+                h.itemName.toLowerCase().includes(historySearch) || 
+                h.borrower.toLowerCase().includes(historySearch)
+            );
+
+            document.getElementById('history-tbody').innerHTML = filteredHistory.length === 0
+                ? `<tr><td colspan="6" class="empty-state" style="padding: 1.5rem;">No transaction history records found.</td></tr>`
+                : filteredHistory.map(h => `
+                    <tr>
+                        <td><strong>${h.itemName}</strong></td>
+                        <td>${h.borrower}</td>
+                        <td>${h.qty}</td>
+                        <td>${h.borrowedDate}</td>
+                        <td>${h.returnedDate}</td>
+                        <td><span style="color: #16a34a; font-weight: 600;">${h.status}</span></td>
+                    </tr>
+                `).join('');
+        }
+
+        // Initialize on window load
+        window.onload = function() {
+            getDB(STORAGE_KEY_INVENTORY, defaultInventory);
+            getDB(STORAGE_KEY_BORROWED, defaultBorrowed);
+            getDB(STORAGE_KEY_HISTORY, defaultHistory);
+            renderAll();
+        };
+    </script>
+</body>
+</html>
