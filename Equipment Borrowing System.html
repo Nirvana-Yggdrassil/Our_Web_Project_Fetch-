@@ -10,7 +10,7 @@
 <body>
     <header>
         <div class="brand">
-            <div class="brand-icon"><img id="logo" src="images/Logo Spoild (2).png" alt="Logo"></div>
+            <div class="brand-icon"><img id="logo" src="https://cdn.phototourl.com/member/2026-10-19-309e065f-4588-43f0-9b37-d0de8f8bab7c.png" alt="Logo"></div>
             <div class="brand-title">
                 <h1>Fetch!</h1>
                 <h5>ICTC Equipment Borrowing System</h5>
@@ -18,7 +18,7 @@
         </div>
         <div>
             <button onclick="openModal('add-modal')" class="btn">
-                <span id = "add-equipment-btn">＋ Add Equipment</span>
+                <span id="add-equipment-btn">＋ Add Equipment</span>
             </button>
         </div>
     </header>
@@ -188,12 +188,46 @@
                     <input type="number" id="add-qty" min="1" value="5" required>
                 </div>
                 <div class="form-group">
-                    <label>Image URL / Local Path (Optional)</label>
-                    <input type="text" id="add-image" placeholder="images/Speaker.jpg">
+                    <label>Image Web URL (Optional)</label>
+                    <input type="url" id="add-image" placeholder="https://images.unsplash.com/photo-1545454675-3531b543be5d?w=500">
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('add-modal')">Cancel</button>
                     <button type="submit" class="btn">Save Equipment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: EDIT EQUIPMENT -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Equipment</h3>
+                <button class="close-btn" onclick="closeModal('edit-modal')">&times;</button>
+            </div>
+            <form id="edit-form" onsubmit="handleEditEquipment(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                <input type="hidden" id="edit-id">
+                <div class="form-group">
+                    <label>Equipment Name</label>
+                    <input type="text" id="edit-name" required placeholder="e.g. Speakers">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" id="edit-category" required placeholder="e.g. Audio">
+                </div>
+                <div class="form-group">
+                    <label>Total Quantity</label>
+                    <input type="number" id="edit-total-qty" min="1" required>
+                    <small style="color: var(--text-muted); font-size: 0.75rem;">Available quantity will adjust proportionally based on active loans.</small>
+                </div>
+                <div class="form-group">
+                    <label>Image Web URL</label>
+                    <input type="url" id="edit-image" placeholder="https://images.unsplash.com/photo-1545454675-3531b543be5d?w=500">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('edit-modal')">Cancel</button>
+                    <button type="submit" class="btn">Update Equipment</button>
                 </div>
             </form>
         </div>
@@ -248,25 +282,36 @@
         const STORAGE_KEY_INVENTORY = 'equipborrow_db_inventory';
         const STORAGE_KEY_BORROWED = 'equipborrow_db_borrowed';
         const STORAGE_KEY_HISTORY = 'equipborrow_db_history';
+        const STORAGE_VERSION_KEY = 'equipborrow_db_version';
+        const CURRENT_DB_VERSION = 'v2_image_urls';
 
         const defaultInventory = [
-            { id: 'EQ-101', name: 'Speakers', category: 'Audio', totalQty: 5, availableQty: 5, image: 'images/Speaker.jpg' },
-            { id: 'EQ-102', name: 'Webcam', category: 'Photography', totalQty: 3, availableQty: 3, image: 'images/webcam.jpg' },
-            { id: 'EQ-103', name: 'Computer Mouse', category: 'Input Devices', totalQty: 2, availableQty: 2, image: 'images/mouse.jpg' },
-            { id: 'EQ-104', name: 'Computer Keyboard', category: 'Input Devices', totalQty: 6, availableQty: 6, image: 'images/keyboard.jpg' },
-            { id: 'EQ-105', name: 'Headset', category: 'Audio Devices', totalQty: 4, availableQty: 4, image: 'images/headset.jpg' },
-            { id: 'EQ-106', name: 'VGA Cable', category: 'Video Cable', totalQty: 5, availableQty: 5, image: 'images/VGA.jpg' },
-            { id: 'EQ-107', name: 'HDMI Cable', category: 'Video Cable', totalQty: 5, availableQty: 5, image: 'images/HDMI.jpg', restrictedRooms: ['Room 301', 'Room 302', 'Auditorium'] }
+            { id: 'EQ-101', name: 'Speakers', category: 'Audio', totalQty: 5, availableQty: 5, image: 'https://cdn.phototourl.com/member/2026-10-19-068bb04a-63a9-4761-9b30-e0b2c1779b3a.jpg' },
+            { id: 'EQ-102', name: 'Webcam', category: 'Photography', totalQty: 3, availableQty: 3, image: 'https://cdn.phototourl.com/member/2026-10-19-321e31dd-7d0a-408a-8ceb-b93506be661a.jpg' },
+            { id: 'EQ-103', name: 'Computer Mouse', category: 'Input Devices', totalQty: 2, availableQty: 2, image: 'https://cdn.phototourl.com/member/2026-10-19-57f4e48e-1546-4c74-ae70-8d33c92d5ee2.jpg' },
+            { id: 'EQ-104', name: 'Computer Keyboard', category: 'Input Devices', totalQty: 6, availableQty: 6, image: 'https://cdn.phototourl.com/member/2026-10-19-bfdad7b6-a157-4490-872c-e772dfd05f34.jpg' },
+            { id: 'EQ-105', name: 'Headset', category: 'Audio Devices', totalQty: 4, availableQty: 4, image: 'https://cdn.phototourl.com/member/2026-10-19-a2a4a621-5845-4477-92cb-aee5776f11ad.jpg' },
+            { id: 'EQ-106', name: 'VGA Cable', category: 'Video Cable', totalQty: 5, availableQty: 5, image: 'https://cdn.phototourl.com/member/2026-10-19-3dd8f65b-b784-4497-b353-276e456b5ebd.jpg' },
+            { id: 'EQ-107', name: 'HDMI Cable', category: 'Video Cable', totalQty: 5, availableQty: 5, image: 'https://cdn.phototourl.com/member/2026-10-19-cd951464-56b2-4dc4-9373-04d3030b0983.jpg', restrictedRooms: ['Room 301', 'Room 302', 'Auditorium'] }
         ];
 
         const defaultBorrowed = [
-            { loanId: 'LOAN-1', itemId: 'EQ-101', itemName: 'Speakers', borrower: 'Alex Turner', Department: 'BS Information Technology', room: 'Room 101', qty: 1, borrowedDate: '2026-05-01', dueDate: '2026-05-15' },
-            { loanId: 'LOAN-2', itemId: 'EQ-103', itemName: 'Computer Mouse', Department: 'BS Psychology', borrower: 'Juan Dela Cruz', room: 'Auditorium', qty: 1, borrowedDate: '2026-04-10', dueDate: '2026-04-18' }
+            { loanId: 'LOAN-1', itemId: 'EQ-101', itemName: 'Speakers', borrower: 'Alex Turner', department: 'BS Information Technology', room: 'Room 101', qty: 1, borrowedDate: '2026-05-01', dueDate: '2026-05-15' },
+            { loanId: 'LOAN-2', itemId: 'EQ-103', itemName: 'Computer Mouse', department: 'BS Psychology', borrower: 'Juan Dela Cruz', room: 'Auditorium', qty: 1, borrowedDate: '2026-04-10', dueDate: '2026-04-18' }
         ];
 
         const defaultHistory = [
-            { id: 'HIST-1', itemName: 'HDMI / USB-C Hub', borrower: 'David Miller', qty: 1, borrowedDate: '2026-04-01', returnedDate: '2026-04-05', status: 'Returned' }
+            { id: 'HIST-1', itemName: 'HDMI Cable', borrower: 'David Miller', qty: 1, borrowedDate: '2026-04-01', returnedDate: '2026-04-05', status: 'Returned' }
         ];
+
+        // Ensure legacy local storage data updates to new URL format
+        function checkAndMigrateStorage() {
+            const currentVersion = localStorage.getItem(STORAGE_VERSION_KEY);
+            if (currentVersion !== CURRENT_DB_VERSION) {
+                localStorage.removeItem(STORAGE_KEY_INVENTORY);
+                localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_DB_VERSION);
+            }
+        }
 
         // Database getters & setters
         function getDB(key, defaultVal) {
@@ -324,12 +369,65 @@
                 category: category,
                 totalQty: totalQty,
                 availableQty: totalQty,
-                image: image || 'images/Speaker.jpg'
+                image: image || 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=500'
             });
 
             saveDB(STORAGE_KEY_INVENTORY, inventory);
             closeModal('add-modal');
             document.getElementById('add-form').reset();
+            renderAll();
+        }
+
+        // Open Edit Modal
+        function openEditModal(itemId) {
+            const inventory = getDB(STORAGE_KEY_INVENTORY, defaultInventory);
+            const item = inventory.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('edit-name').value = item.name;
+            document.getElementById('edit-category').value = item.category;
+            document.getElementById('edit-total-qty').value = item.totalQty;
+            document.getElementById('edit-image').value = item.image;
+
+            openModal('edit-modal');
+        }
+
+        // Handle Edit Equipment
+        function handleEditEquipment(e) {
+            e.preventDefault();
+            const itemId = document.getElementById('edit-id').value;
+            const name = document.getElementById('edit-name').value.trim();
+            const category = document.getElementById('edit-category').value.trim();
+            const newTotalQty = parseInt(document.getElementById('edit-total-qty').value);
+            const image = document.getElementById('edit-image').value.trim();
+
+            let inventory = getDB(STORAGE_KEY_INVENTORY, defaultInventory);
+            let borrowedList = getDB(STORAGE_KEY_BORROWED, defaultBorrowed);
+
+            const itemIndex = inventory.findIndex(i => i.id === itemId);
+            if (itemIndex === -1) return;
+
+            // Calculate currently borrowed quantity for this item
+            const currentBorrowedQty = borrowedList
+                .filter(l => l.itemId === itemId)
+                .reduce((sum, l) => sum + l.qty, 0);
+
+            if (newTotalQty < currentBorrowedQty) {
+                alert(`Cannot set total quantity to ${newTotalQty}. There are currently ${currentBorrowedQty} units checked out.`);
+                return;
+            }
+
+            // Adjust available quantity based on the difference in total quantity
+            const diff = newTotalQty - inventory[itemIndex].totalQty;
+            inventory[itemIndex].totalQty = newTotalQty;
+            inventory[itemIndex].availableQty += diff;
+            inventory[itemIndex].name = name;
+            inventory[itemIndex].category = category;
+            inventory[itemIndex].image = image || inventory[itemIndex].image;
+
+            saveDB(STORAGE_KEY_INVENTORY, inventory);
+            closeModal('edit-modal');
             renderAll();
         }
 
@@ -355,7 +453,7 @@
             const roomHint = document.getElementById('room-hint');
             const roomReqStar = document.getElementById('room-req-star');
 
-            roomInput.value = ''; // Reset room input field
+            roomInput.value = '';
 
             if (item.restrictedRooms && item.restrictedRooms.length > 0) {
                 roomInput.required = true;
@@ -469,10 +567,16 @@
             renderAll();
         }
 
-        // Delete Equipment from Catalog
+        // Delete Equipment from Catalog with Confirmation Popup
         function deleteEquipment(itemId) {
             let inventory = getDB(STORAGE_KEY_INVENTORY, defaultInventory);
             let borrowedList = getDB(STORAGE_KEY_BORROWED, defaultBorrowed);
+
+            const item = inventory.find(i => i.id === itemId);
+            const itemName = item ? item.name : 'this equipment';
+
+            const confirmed = confirm(`Are you sure you want to delete "${itemName}" from the catalog?`);
+            if (!confirmed) return;
 
             const activeCheck = borrowedList.some(l => l.itemId === itemId);
             if (activeCheck) {
@@ -542,6 +646,7 @@
                             </div>
                             <div class="equipment-footer">
                                 <button onclick="openBorrowModal('${item.id}')" class="btn" style="flex: 1; justify-content: center; font-size: 0.75rem;" ${item.availableQty === 0 ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>Borrow</button>
+                                <button onclick="openEditModal('${item.id}')" class="btn btn-secondary" style="font-size: 0.75rem;" title="Edit item">✏️</button>
                                 <button onclick="deleteEquipment('${item.id}')" class="btn btn-secondary" style="font-size: 0.75rem;" title="Delete item">🗑️</button>
                             </div>
                         </div>
@@ -554,7 +659,7 @@
             const filteredBorrowed = borrowedList.filter(l => 
                 l.itemName.toLowerCase().includes(activeSearch) || 
                 l.borrower.toLowerCase().includes(activeSearch) || 
-                l.department.toLowerCase().includes(activeSearch) ||
+                (l.department && l.department.toLowerCase().includes(activeSearch)) ||
                 (l.room && l.room.toLowerCase().includes(activeSearch))
             );
 
@@ -566,7 +671,7 @@
                         <tr>
                             <td><strong>${loan.itemName}</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);">${loan.itemId}</span></td>
                             <td>${loan.borrower}</td>
-                            <td>${loan.department}<br><span style="font-size: 0.75rem; color: var(--text-muted);">Room: ${loan.room || 'N/A'}</span></td>
+                            <td>${loan.department || 'N/A'}<br><span style="font-size: 0.75rem; color: var(--text-muted);">Room: ${loan.room || 'N/A'}</span></td>
                             <td><strong>${loan.qty}</strong></td>
                             <td>
                                 <span style="color: ${isOverdue ? '#dc2626' : 'var(--text-main)'}; font-weight: ${isOverdue ? '700' : '400'};">
@@ -606,6 +711,7 @@
 
         // Initialize on window load
         window.onload = function() {
+            checkAndMigrateStorage();
             getDB(STORAGE_KEY_INVENTORY, defaultInventory);
             getDB(STORAGE_KEY_BORROWED, defaultBorrowed);
             getDB(STORAGE_KEY_HISTORY, defaultHistory);
